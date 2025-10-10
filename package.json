@@ -1,5 +1,6 @@
 {
   "name": "react-canonical",
+  "author": "Сергий Мифирия <serg.universe@yandex.ru>",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
