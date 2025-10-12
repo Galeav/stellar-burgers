@@ -27,6 +27,7 @@ export const OrderCardUI: FC<OrderCardUIProps> = memo(
           <FormattedDate date={orderInfo.date} />
         </span>
       </div>
+
       <h4 className={`pt-6 text text_type_main-medium ${styles.order_name}`}>
         {orderInfo.name}
       </h4>

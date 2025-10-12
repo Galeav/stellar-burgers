@@ -1,7 +1,7 @@
 import { FC, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 
-import { Preloader, IngredientDetailsUI, TextLabelUI } from '@ui';
+import { Preloader, IngredientDetailsUI, TextLabel } from '@ui';
 import { TIngredient } from '@utils-types';
 import { useDispatch, useSelector } from '@store';
 import {
@@ -35,10 +35,10 @@ export const IngredientDetails: FC<IngredientDetailsProps> = ({
 
   if (!ingredientData && isLoading) return <Preloader />;
 
-  if (error) return <TextLabelUI text={error} />;
+  if (error) return <TextLabel text={error} />;
 
   if (!ingredientData || !ingredients.length)
-    return <TextLabelUI text={'Ингредиент не найден!'} />;
+    return <TextLabel text={'Ингредиент не найден!'} />;
 
   return (
     <IngredientDetailsUI ingredientData={ingredientData} fullPage={fullPage} />

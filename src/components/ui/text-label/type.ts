@@ -1,3 +1,3 @@
-export type TextLabelUIProps = {
+export type TextLabelProps = {
   text?: string;
 };

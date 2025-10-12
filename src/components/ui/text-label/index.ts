@@ -1,1 +1,1 @@
-export { TextLabelUI } from './text-label';
+export { TextLabel } from './text-label';

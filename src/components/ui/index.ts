@@ -16,3 +16,4 @@ export * from './orders-list';
 export * from './preloader';
 export * from './profile-menu';
 export * from './text-label';
+export * from './number-label';

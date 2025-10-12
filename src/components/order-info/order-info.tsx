@@ -2,7 +2,7 @@ import { FC, useEffect, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 
 import { Preloader } from '@ui';
-import { OrderInfoUI, TextLabelUI } from '@ui';
+import { OrderInfoUI, TextLabel } from '@ui';
 import { TIngredient, TOrder } from '@utils-types';
 import { useDispatch, useSelector } from '@store';
 import {
@@ -14,8 +14,9 @@ import {
   selectIngredientsError
 } from '@selectors';
 import { fetchIngredients, fetchOrderByNumber } from '@slices';
+import { OrderInfoProps } from './type';
 
-export const OrderInfo: FC = () => {
+export const OrderInfo: FC<OrderInfoProps> = ({ fullPage = false }) => {
   const { number } = useParams<{ number: string }>();
   const num = Number(number);
 
@@ -95,10 +96,10 @@ export const OrderInfo: FC = () => {
 
   if (!orderInfo) {
     if (ingredientsError) {
-      return <TextLabelUI text={`Не удалось найти заказ ${num}`} />;
+      return <TextLabel text={`Не удалось найти заказ ${num}`} />;
     }
     return <Preloader />;
   }
 
-  return <OrderInfoUI orderInfo={orderInfo} />;
+  return <OrderInfoUI orderInfo={orderInfo} fullPage={fullPage} />;
 };

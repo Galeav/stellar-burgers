@@ -111,12 +111,12 @@ const App = () => {
           path={Paths.ingredient()}
           element={<IngredientDetails fullPage />}
         />
-        <Route path={Paths.feedOrder()} element={<OrderInfo />} />
+        <Route path={Paths.feedOrder()} element={<OrderInfo fullPage />} />
         <Route
           path={Paths.profileOrder()}
           element={
             <ProtectedRoute>
-              <OrderInfo />
+              <OrderInfo fullPage />
             </ProtectedRoute>
           }
         />
@@ -130,7 +130,7 @@ const App = () => {
           <Route
             path={Paths.ingredient()}
             element={
-              <Modal title='Об ингредиенте' onClose={handleModalClose}>
+              <Modal title='Детали ингредиента' onClose={handleModalClose}>
                 <IngredientDetails />
               </Modal>
             }
@@ -147,7 +147,7 @@ const App = () => {
             path={Paths.profileOrder()}
             element={
               <ProtectedRoute>
-                <Modal title='Ваш заказ' onClose={handleModalClose}>
+                <Modal title='Детали заказа' onClose={handleModalClose}>
                   <OrderInfo />
                 </Modal>
               </ProtectedRoute>
