@@ -1,16 +1,23 @@
+import React, { FC, SyntheticEvent, useEffect, useState } from 'react';
+
 import { ProfileUI } from '@ui-pages';
-import { FC, SyntheticEvent, useEffect, useState } from 'react';
+import { useDispatch, useSelector } from '@store';
+import { selectAuthError, selectAuthRequest, selectUser } from '@selectors';
+import { updateUser, clearAuthError } from '@slices';
+import { Preloader } from '@ui';
+
+import { ProfileForm, TUpdateUserPayload } from './type';
 
 export const Profile: FC = () => {
-  /** TODO: взять переменную из стора */
-  const user = {
-    name: '',
-    email: ''
-  };
+  const dispatch = useDispatch();
 
-  const [formValue, setFormValue] = useState({
-    name: user.name,
-    email: user.email,
+  const user = useSelector(selectUser);
+  const authRequest = useSelector(selectAuthRequest);
+  const error = useSelector(selectAuthError);
+
+  const [formValue, setFormValue] = useState<ProfileForm>({
+    name: user?.name ?? '',
+    email: user?.email ?? '',
     password: ''
   });
 
@@ -22,22 +29,44 @@ export const Profile: FC = () => {
     }));
   }, [user]);
 
+  useEffect(
+    () => () => {
+      dispatch(clearAuthError());
+    },
+    [dispatch]
+  );
+
   const isFormChanged =
-    formValue.name !== user?.name ||
-    formValue.email !== user?.email ||
+    formValue.name !== (user?.name ?? '') ||
+    formValue.email !== (user?.email ?? '') ||
     !!formValue.password;
 
   const handleSubmit = (e: SyntheticEvent) => {
     e.preventDefault();
+
+    const payload: TUpdateUserPayload = {};
+    if (formValue.name !== (user?.name ?? '')) payload.name = formValue.name;
+    if (formValue.email !== (user?.email ?? ''))
+      payload.email = formValue.email;
+    if (formValue.password) payload.password = formValue.password;
+
+    if (Object.keys(payload).length)
+      dispatch(updateUser(payload))
+        .unwrap()
+        .then(() => {
+          setFormValue((prev) => ({ ...prev, password: '' }));
+        })
+        .catch(() => {});
   };
 
   const handleCancel = (e: SyntheticEvent) => {
     e.preventDefault();
     setFormValue({
-      name: user.name,
-      email: user.email,
+      name: user?.name ?? '',
+      email: user?.email ?? '',
       password: ''
     });
+    dispatch(clearAuthError());
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -45,7 +74,10 @@ export const Profile: FC = () => {
       ...prevState,
       [e.target.name]: e.target.value
     }));
+    dispatch(clearAuthError());
   };
+
+  if (authRequest) return <Preloader />;
 
   return (
     <ProfileUI
@@ -54,8 +86,7 @@ export const Profile: FC = () => {
       handleCancel={handleCancel}
       handleSubmit={handleSubmit}
       handleInputChange={handleInputChange}
+      updateUserError={error || ''}
     />
   );
-
-  return null;
 };

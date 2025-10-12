@@ -1,21 +1,55 @@
-import { FC, useMemo } from 'react';
-import { Preloader } from '../ui/preloader';
-import { OrderInfoUI } from '../ui/order-info';
-import { TIngredient } from '@utils-types';
+import { FC, useEffect, useMemo } from 'react';
+import { useParams } from 'react-router-dom';
+
+import { Preloader } from '@ui';
+import { OrderInfoUI, TextLabelUI } from '@ui';
+import { TIngredient, TOrder } from '@utils-types';
+import { useDispatch, useSelector } from '@store';
+import {
+  selectFeedOrders,
+  selectIngredientsRequest,
+  selectIngredients,
+  selectOrderView,
+  selectProfileOrders,
+  selectIngredientsError
+} from '@selectors';
+import { fetchIngredients, fetchOrderByNumber } from '@slices';
 
 export const OrderInfo: FC = () => {
-  /** TODO: взять переменные orderData и ingredients из стора */
-  const orderData = {
-    createdAt: '',
-    ingredients: [],
-    _id: '',
-    status: '',
-    name: '',
-    updatedAt: 'string',
-    number: 0
-  };
+  const { number } = useParams<{ number: string }>();
+  const num = Number(number);
 
-  const ingredients: TIngredient[] = [];
+  const dispatch = useDispatch();
+
+  const ingredients: TIngredient[] = useSelector(selectIngredients);
+  const isIngredientsLoading = useSelector(selectIngredientsRequest);
+  const ingredientsError = useSelector(selectIngredientsError);
+
+  const ordersFeed = useSelector(selectFeedOrders);
+  const ordersProfile = useSelector(selectProfileOrders);
+
+  const { current, request: orderLoading } = useSelector(selectOrderView);
+
+  useEffect(() => {
+    if (!ingredients.length && !isIngredientsLoading) {
+      dispatch(fetchIngredients());
+    }
+  }, [ingredients.length, isIngredientsLoading, dispatch]);
+
+  const found = useMemo(
+    () =>
+      ordersFeed.concat(ordersProfile).find((order) => order.number === num) ||
+      null,
+    [ordersFeed, ordersProfile, num]
+  );
+
+  useEffect(() => {
+    if (!found && !current && !orderLoading && num) {
+      dispatch(fetchOrderByNumber(num));
+    }
+  }, [found, current, orderLoading, num, dispatch]);
+
+  const orderData: TOrder | null = found ?? current ?? null;
 
   /* Готовим данные для отображения */
   const orderInfo = useMemo(() => {
@@ -60,6 +94,9 @@ export const OrderInfo: FC = () => {
   }, [orderData, ingredients]);
 
   if (!orderInfo) {
+    if (ingredientsError) {
+      return <TextLabelUI text={`Не удалось найти заказ ${num}`} />;
+    }
     return <Preloader />;
   }
 

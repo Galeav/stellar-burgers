@@ -1,14 +1,46 @@
-import { FC } from 'react';
-import { Preloader } from '../ui/preloader';
-import { IngredientDetailsUI } from '../ui/ingredient-details';
+import { FC, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 
-export const IngredientDetails: FC = () => {
-  /** TODO: взять переменную из стора */
-  const ingredientData = null;
+import { Preloader, IngredientDetailsUI, TextLabelUI } from '@ui';
+import { TIngredient } from '@utils-types';
+import { useDispatch, useSelector } from '@store';
+import {
+  selectIngredientsRequest,
+  selectIngredients,
+  selectIngredientsError
+} from '@selectors';
+import { fetchIngredients } from '@slices';
 
-  if (!ingredientData) {
-    return <Preloader />;
-  }
+import { IngredientDetailsProps } from './type';
 
-  return <IngredientDetailsUI ingredientData={ingredientData} />;
+export const IngredientDetails: FC<IngredientDetailsProps> = ({
+  fullPage = false
+}) => {
+  const { id } = useParams<{ id: string }>();
+
+  const dispatch = useDispatch();
+  const ingredients = useSelector(selectIngredients);
+  const isLoading = useSelector(selectIngredientsRequest);
+  const error = useSelector(selectIngredientsError);
+
+  useEffect(() => {
+    if (!ingredients.length && !isLoading) {
+      dispatch(fetchIngredients());
+    }
+  }, [ingredients.length, isLoading, dispatch]);
+
+  const ingredientData =
+    ingredients.find((ingredient: TIngredient) => ingredient._id === id) ??
+    null;
+
+  if (!ingredientData && isLoading) return <Preloader />;
+
+  if (error) return <TextLabelUI text={error} />;
+
+  if (!ingredientData || !ingredients.length)
+    return <TextLabelUI text={'Ингредиент не найден!'} />;
+
+  return (
+    <IngredientDetailsUI ingredientData={ingredientData} fullPage={fullPage} />
+  );
 };
