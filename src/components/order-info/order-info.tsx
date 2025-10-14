@@ -7,13 +7,12 @@ import { TIngredient, TOrder } from '@utils-types';
 import { useDispatch, useSelector } from '@store';
 import {
   selectFeedOrders,
-  selectIngredientsRequest,
   selectIngredients,
   selectOrderView,
   selectProfileOrders,
   selectIngredientsError
 } from '@selectors';
-import { fetchIngredients, fetchOrderByNumber } from '@slices';
+import { fetchOrderByNumber } from '@slices';
 import { OrderInfoProps } from './type';
 
 export const OrderInfo: FC<OrderInfoProps> = ({ fullPage = false }) => {
@@ -23,19 +22,16 @@ export const OrderInfo: FC<OrderInfoProps> = ({ fullPage = false }) => {
   const dispatch = useDispatch();
 
   const ingredients: TIngredient[] = useSelector(selectIngredients);
-  const isIngredientsLoading = useSelector(selectIngredientsRequest);
   const ingredientsError = useSelector(selectIngredientsError);
 
   const ordersFeed = useSelector(selectFeedOrders);
   const ordersProfile = useSelector(selectProfileOrders);
 
-  const { current, request: orderLoading } = useSelector(selectOrderView);
-
-  useEffect(() => {
-    if (!ingredients.length && !isIngredientsLoading) {
-      dispatch(fetchIngredients());
-    }
-  }, [ingredients.length, isIngredientsLoading, dispatch]);
+  const {
+    current,
+    request: orderLoading,
+    error: orderError
+  } = useSelector(selectOrderView);
 
   const found = useMemo(
     () =>
@@ -95,8 +91,8 @@ export const OrderInfo: FC<OrderInfoProps> = ({ fullPage = false }) => {
   }, [orderData, ingredients]);
 
   if (!orderInfo) {
-    if (ingredientsError) {
-      return <TextLabel text={`Не удалось найти заказ ${num}`} />;
+    if (ingredientsError || orderError) {
+      return <TextLabel text={`Не удалось загрузить заказ #${num}`} />;
     }
     return <Preloader />;
   }

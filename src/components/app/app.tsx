@@ -13,7 +13,8 @@ import {
   IngredientDetails,
   Modal,
   OrderInfo,
-  ProtectedRoute
+  ProtectedRoute,
+  OrderModal
 } from '@components';
 import {
   ConstructorPage,
@@ -27,7 +28,7 @@ import {
   ResetPassword
 } from '@pages';
 import { useDispatch } from '@store';
-import { fetchUser } from '@slices';
+import { fetchIngredients, fetchUser } from '@slices';
 
 import '../../index.css';
 import styles from './app.module.css';
@@ -42,6 +43,7 @@ const App = () => {
 
   useEffect(() => {
     dispatch(fetchUser());
+    dispatch(fetchIngredients());
   }, [dispatch]);
 
   const handleModalClose = useCallback(() => navigate(-1), [navigate]);
@@ -137,19 +139,13 @@ const App = () => {
           />
           <Route
             path={Paths.feedOrder()}
-            element={
-              <Modal title='Детали заказа' onClose={handleModalClose}>
-                <OrderInfo />
-              </Modal>
-            }
+            element={<OrderModal onClose={handleModalClose} />}
           />
           <Route
             path={Paths.profileOrder()}
             element={
               <ProtectedRoute>
-                <Modal title='Детали заказа' onClose={handleModalClose}>
-                  <OrderInfo />
-                </Modal>
+                <OrderModal onClose={handleModalClose} />
               </ProtectedRoute>
             }
           />

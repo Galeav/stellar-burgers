@@ -12,6 +12,11 @@ export const IngredientDetailsUI: FC<IngredientDetailsUIProps> = memo(
     return (
       <div className={clsx(fullPage && styles.full_page_wrapper)}>
         <div className={styles.content}>
+          {fullPage && (
+            <h3 className={`${styles.title} text text_type_main-large`}>
+              Детали ингредиента
+            </h3>
+          )}
           <img
             className={styles.img}
             alt='изображение ингредиента.'

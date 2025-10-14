@@ -13,7 +13,7 @@ import { NumberLabel } from '../number-label';
 export const OrderInfoUI: FC<OrderInfoUIProps> = memo(
   ({ orderInfo, fullPage = false }) => (
     <div className={styles.wrap}>
-      <NumberLabel num={orderInfo.number} fullPage={fullPage} />
+      {fullPage && <NumberLabel num={orderInfo.number} fullPage />}
       <h3 className={`text text_type_main-medium  pb-3 pt-10 ${styles.header}`}>
         {orderInfo.name}
       </h3>
