@@ -1,14 +1,39 @@
 import { FC } from 'react';
-import { Preloader } from '../ui/preloader';
-import { IngredientDetailsUI } from '../ui/ingredient-details';
+import { useParams } from 'react-router-dom';
 
-export const IngredientDetails: FC = () => {
-  /** TODO: взять переменную из стора */
-  const ingredientData = null;
+import { Preloader, IngredientDetailsUI, TextLabel } from '@ui';
+import { TIngredient } from '@utils-types';
+import { useSelector } from '@store';
+import {
+  selectIngredientsRequest,
+  selectIngredients,
+  selectIngredientsError
+} from '@selectors';
+
+import { IngredientDetailsProps } from './type';
+
+export const IngredientDetails: FC<IngredientDetailsProps> = ({
+  fullPage = false
+}) => {
+  const { id } = useParams<{ id: string }>();
+
+  const ingredients = useSelector(selectIngredients);
+  const isLoading = useSelector(selectIngredientsRequest);
+  const error = useSelector(selectIngredientsError);
+
+  const ingredientData =
+    ingredients.find((ingredient: TIngredient) => ingredient._id === id) ??
+    null;
 
   if (!ingredientData) {
-    return <Preloader />;
+    return isLoading ? (
+      <Preloader />
+    ) : (
+      <TextLabel text={error ?? 'Ингредиент не найден!'} />
+    );
   }
 
-  return <IngredientDetailsUI ingredientData={ingredientData} />;
+  return (
+    <IngredientDetailsUI ingredientData={ingredientData} fullPage={fullPage} />
+  );
 };

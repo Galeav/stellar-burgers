@@ -1,21 +1,52 @@
-import { FC, useMemo } from 'react';
-import { Preloader } from '../ui/preloader';
-import { OrderInfoUI } from '../ui/order-info';
-import { TIngredient } from '@utils-types';
+import { FC, useEffect, useMemo } from 'react';
+import { useParams } from 'react-router-dom';
 
-export const OrderInfo: FC = () => {
-  /** TODO: взять переменные orderData и ingredients из стора */
-  const orderData = {
-    createdAt: '',
-    ingredients: [],
-    _id: '',
-    status: '',
-    name: '',
-    updatedAt: 'string',
-    number: 0
-  };
+import { Preloader } from '@ui';
+import { OrderInfoUI, TextLabel } from '@ui';
+import { TIngredient, TOrder } from '@utils-types';
+import { useDispatch, useSelector } from '@store';
+import {
+  selectFeedOrders,
+  selectIngredients,
+  selectOrderView,
+  selectProfileOrders,
+  selectIngredientsError
+} from '@selectors';
+import { fetchOrderByNumber } from '@slices';
+import { OrderInfoProps } from './type';
 
-  const ingredients: TIngredient[] = [];
+export const OrderInfo: FC<OrderInfoProps> = ({ fullPage = false }) => {
+  const { number } = useParams<{ number: string }>();
+  const num = Number(number);
+
+  const dispatch = useDispatch();
+
+  const ingredients: TIngredient[] = useSelector(selectIngredients);
+  const ingredientsError = useSelector(selectIngredientsError);
+
+  const ordersFeed = useSelector(selectFeedOrders);
+  const ordersProfile = useSelector(selectProfileOrders);
+
+  const {
+    current,
+    request: orderLoading,
+    error: orderError
+  } = useSelector(selectOrderView);
+
+  const found = useMemo(
+    () =>
+      ordersFeed.concat(ordersProfile).find((order) => order.number === num) ||
+      null,
+    [ordersFeed, ordersProfile, num]
+  );
+
+  useEffect(() => {
+    if (!found && !current && !orderLoading && num) {
+      dispatch(fetchOrderByNumber(num));
+    }
+  }, [found, current, orderLoading, num, dispatch]);
+
+  const orderData: TOrder | null = found ?? current ?? null;
 
   /* Готовим данные для отображения */
   const orderInfo = useMemo(() => {
@@ -60,8 +91,11 @@ export const OrderInfo: FC = () => {
   }, [orderData, ingredients]);
 
   if (!orderInfo) {
+    if (ingredientsError || orderError) {
+      return <TextLabel text={`Не удалось загрузить заказ #${num}`} />;
+    }
     return <Preloader />;
   }
 
-  return <OrderInfoUI orderInfo={orderInfo} />;
+  return <OrderInfoUI orderInfo={orderInfo} fullPage={fullPage} />;
 };

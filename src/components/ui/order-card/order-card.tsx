@@ -9,6 +9,7 @@ import styles from './order-card.module.css';
 
 import { OrderCardUIProps } from './type';
 import { OrderStatus } from '@components';
+import { Paths } from '@paths';
 
 export const OrderCardUI: FC<OrderCardUIProps> = memo(
   ({ orderInfo, maxIngredients, locationState }) => (
@@ -26,10 +27,11 @@ export const OrderCardUI: FC<OrderCardUIProps> = memo(
           <FormattedDate date={orderInfo.date} />
         </span>
       </div>
+
       <h4 className={`pt-6 text text_type_main-medium ${styles.order_name}`}>
         {orderInfo.name}
       </h4>
-      {location.pathname === '/profile/orders' && (
+      {location.pathname === Paths.profileOrders && (
         <OrderStatus status={orderInfo.status} />
       )}
       <div className={`pt-6 ${styles.order_content}`}>
